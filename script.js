@@ -3,8 +3,6 @@ const typingTextElement = document.getElementById('typing-text');
 const phrases = [
     "Software Engineer",
     "Java Backend Developer",
-    "Problem Solver",
-    "Tech Enthusiast"
 ];
 
 let phraseIndex = 0;
