@@ -39,7 +39,7 @@ function type() {
     setTimeout(type, typeSpeed);
 }
 
-// ===== CANVAS CYBER RAIN EFFECT =====
+// ===== CANVAS SNOWFLAKE EFFECT =====
 function initCanvas() {
     const canvas = document.getElementById('bg-canvas');
     if (!canvas) return;
@@ -48,60 +48,64 @@ function initCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const symbols = "0101 </> {} [] JAVA SPRING ;";
-    const fontSize = 12; // Kích thước chữ vừa phải
-    let columns = Math.floor(canvas.width / fontSize);
-    const drops = [];
+    const snowflakes = [];
+    const maxSnowflakes = 80; // Số lượng bông tuyết vừa phải
 
-    // Initialize drops
-    for (let x = 0; x < columns; x++) {
-        drops[x] = Math.random() * -100; // Start lines above screen
+    class Snowflake {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 12 + 8; // Kích thước 8-20px
+            this.speedY = Math.random() * 0.7 + 0.3; // Tốc độ rơi chậm
+            this.speedX = Math.random() * 0.5 - 0.25; // Gió thổi nhẹ qua lại
+            this.opacity = Math.random() * 0.4 + 0.1; // Mờ ảo
+        }
+
+        update() {
+            this.y += this.speedY;
+            this.x += this.speedX;
+
+            // Reset khi rơi hết màn hình
+            if (this.y > canvas.height) {
+                this.y = 0 - this.size;
+                this.x = Math.random() * canvas.width;
+            }
+            // Reset khi bay ngang hết màn hình
+            if (this.x > canvas.width) this.x = 0;
+            if (this.x < 0) this.x = canvas.width;
+        }
+
+        draw() {
+            ctx.fillStyle = 'rgba(200, 220, 255, ' + this.opacity + ')'; // Màu trắng xanh nhẹ
+            ctx.font = this.size + 'px serif';
+            ctx.fillText('❄', this.x, this.y);
+        }
     }
 
-    function draw() {
-        // Trail effect (Mờ dần) - Màu nền trùng với background body
-        ctx.fillStyle = 'rgba(30, 41, 59, 0.15)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.fillStyle = '#0ea5e9'; // Màu xanh công nghệ (Sky 500)
-        ctx.font = fontSize + 'px monospace';
-
-        for (let i = 0; i < drops.length; i++) {
-            // Random character
-            const text = symbols.charAt(Math.floor(Math.random() * symbols.length));
-
-            // Draw character
-            // Randomize opacity slightly for blinking effect
-            ctx.globalAlpha = Math.random() * 0.5 + 0.5;
-            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-            ctx.globalAlpha = 1.0;
-
-            // Reset drop to top randomly
-            if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) {
-                drops[i] = 0;
-            }
-
-            // Fall speed
-            drops[i] += 0.8;
+    function init() {
+        snowflakes.length = 0;
+        for (let i = 0; i < maxSnowflakes; i++) {
+            snowflakes.push(new Snowflake());
         }
     }
 
     function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (let i = 0; i < snowflakes.length; i++) {
+            snowflakes[i].update();
+            snowflakes[i].draw();
+        }
         requestAnimationFrame(animate);
-        draw();
     }
 
-    // Resize event
+    // Resize
     window.addEventListener('resize', () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        columns = Math.floor(canvas.width / fontSize);
-        // Re-init drops but keep some randomness
-        for (let x = 0; x < columns; x++) {
-            drops[x] = Math.random() * canvas.height;
-        }
     });
 
+    init();
     animate();
 }
 
